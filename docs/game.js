@@ -22,13 +22,15 @@ let score = { cat: 0, dog: 0 };
 const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const centers = [[16.7,16.7],[50,16.7],[83.3,16.7],[16.7,50],[50,50],[83.3,50],[16.7,83.3],[50,83.3],[83.3,83.3]];
 
+// Calibrated for the uploaded 8-frame sheet.
+// These are source-image crop coordinates, not CSS percentages.
 const spriteRows = {
-  cat: { idle: 65, shock: 305 },
-  dog: { idle: 535, shock: 770 }
+  cat: { idle: 52, shock: 300 },
+  dog: { idle: 560, shock: 802 }
 };
 
-const startX = 246;
-const stepX = 192;
+const startX = 284;
+const stepX = 220;
 
 function makeSprite(player, state = 'idle') {
   const safeState = state === 'shock' ? 'shock' : 'idle';
