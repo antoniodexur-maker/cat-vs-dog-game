@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cat vs Dog Game</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="top-panel">
+      <section class="player-card" id="catCard">
+        <div class="avatar cat">🐱</div>
+        <div>
+          <div class="name">Cat</div>
+          <div class="score">Очки: <span id="catScore">0</span></div>
+        </div>
+      </section>
+
+      <section class="center-panel">
+        <h1>Cat vs Dog</h1>
+        <p id="statusText">Нажми «Новая партия»</p>
+      </section>
+
+      <section class="player-card" id="dogCard">
+        <div class="avatar dog">🐶</div>
+        <div>
+          <div class="name">Dog</div>
+          <div class="score">Очки: <span id="dogScore">0</span></div>
+        </div>
+      </section>
+    </header>
+
+    <section class="game-area">
+      <div class="character left" id="catCharacter">
+        <div class="speech" id="catSpeech">Мяу?</div>
+        <div class="body">🐱</div>
+        <div class="paw">☝️</div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="electric-label">HIGH VOLTAGE</div>
+        <div class="board" id="board">
+          <button class="cell" data-index="0"></button>
+          <button class="cell" data-index="1"></button>
+          <button class="cell" data-index="2"></button>
+          <button class="cell" data-index="3"></button>
+          <button class="cell" data-index="4"></button>
+          <button class="cell" data-index="5"></button>
+          <button class="cell" data-index="6"></button>
+          <button class="cell" data-index="7"></button>
+          <button class="cell" data-index="8"></button>
+        </div>
+      </div>
+
+      <div class="character right" id="dogCharacter">
+        <div class="speech" id="dogSpeech">Гав!</div>
+        <div class="body">🐶</div>
+        <div class="paw">☝️</div>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <button id="newGameBtn">🎲 Новая партия</button>
+      <button id="modeBtn">Режим: против AI</button>
+      <button id="resetScoreBtn">Сброс счёта</button>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
