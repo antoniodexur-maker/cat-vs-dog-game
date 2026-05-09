@@ -6,270 +6,79 @@
   <title>Cat vs Dog Game</title>
   <style>
     * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: radial-gradient(circle at top, #31485a, #060606 72%); color: white; overflow-x: hidden; }
+    .app { min-height: 100svh; width: min(1180px, 100vw); margin: 0 auto; padding: clamp(8px, 2vw, 16px); display: flex; flex-direction: column; justify-content: center; gap: clamp(8px, 2vh, 18px); }
+    .title { text-align: center; margin: 0; font-size: clamp(24px, 5vw, 46px); text-shadow: 0 0 18px #00e5ff; }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #293b48, #070707 70%);
-      color: white;
-      overflow-x: hidden;
-    }
+    .top-heads { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .head-card { width: min(42vw, 260px); display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 2px solid #00e5ff; border-radius: 18px; background: rgba(0,0,0,.45); box-shadow: 0 0 16px rgba(0,229,255,.45); }
+    .head-card.dog { flex-direction: row-reverse; border-color: #ffeb3b; box-shadow: 0 0 16px rgba(255,235,59,.45); }
+    .head { font-size: clamp(40px, 10vw, 76px); line-height: 1; animation: alive 2.2s ease-in-out infinite; transform-origin: bottom center; }
+    .head-card.dog .head { animation-delay: .45s; }
+    .bubble { flex: 1; background: #fff; color: #111; border-radius: 14px; padding: 8px; min-height: 38px; font-weight: 900; font-size: clamp(12px, 2.5vw, 16px); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+    @keyframes alive { 0%,100%{transform:translateY(0) rotate(0)} 25%{transform:translateY(-4px) rotate(-3deg)} 55%{transform:translateY(1px) rotate(3deg)} }
 
-    .app {
-      min-height: 100vh;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 16px;
-    }
+    .arena { display: grid; grid-template-columns: minmax(300px, 600px); justify-content: center; }
+    .board-shell { position: relative; border: clamp(3px, .8vw, 6px) solid #00e5ff; border-radius: 28px; padding: clamp(10px, 2vw, 18px); background: linear-gradient(180deg, rgba(0,229,255,.14), rgba(0,0,0,.78)); box-shadow: 0 0 30px #00e5ff, inset 0 0 24px rgba(0,229,255,.25); overflow: hidden; }
+    .board-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .score-box { border: 2px solid #ffeb3b; border-radius: 14px; padding: 7px; background: rgba(0,0,0,.48); text-align: center; font-weight: 900; box-shadow: 0 0 12px rgba(255,235,59,.45); }
+    .score-box span { font-size: clamp(20px, 5vw, 28px); }
+    #statusText { color: #ffeb3b; font-weight: 900; text-align: center; text-shadow: 0 0 10px rgba(255,235,59,.7); min-width: 92px; }
+    .electric-label { text-align: center; color: #00e5ff; margin-bottom: 8px; letter-spacing: 4px; font-weight: 900; text-shadow: 0 0 12px #00e5ff; }
 
-    .title {
-      text-align: center;
-      margin: 0;
-      font-size: clamp(26px, 5vw, 48px);
-      text-shadow: 0 0 18px #00e5ff;
-    }
+    .board { --size: min(82vw, 58vh, 520px); position: relative; width: var(--size); height: var(--size); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: clamp(7px, 1.4vw, 12px); margin: 0 auto; }
+    .cell { position: relative; z-index: 3; background: rgba(14,14,14,.93); border: 3px solid #00e5ff; border-radius: 18px; color: white; font-size: clamp(42px, 12vw, 76px); cursor: pointer; transition: transform .12s, background .12s, box-shadow .12s; box-shadow: inset 0 0 14px rgba(0,229,255,.28); }
+    .cell:hover { background: #252525; transform: scale(1.04); box-shadow: 0 0 20px #00e5ff, inset 0 0 14px rgba(0,229,255,.45); }
 
-    .arena {
-      display: grid;
-      grid-template-columns: 180px minmax(320px, 560px) 180px;
-      gap: 20px;
-      align-items: center;
-      justify-content: center;
-    }
+    .zapline { position: absolute; z-index: 1; pointer-events: none; overflow: visible; opacity: .95; filter: drop-shadow(0 0 7px #fff) drop-shadow(0 0 14px #00e5ff); }
+    .zapline svg { width: 100%; height: 100%; overflow: visible; }
+    .zapline polyline { fill: none; stroke: #dfffff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 18 22; animation: dash 0.55s linear infinite; }
+    .zapline.h { left: 1%; width: 98%; height: 24px; }
+    .zapline.v { top: 1%; width: 24px; height: 98%; }
+    .zapline.h.one { top: 31%; } .zapline.h.two { top: 65%; animation-delay:.2s; }
+    .zapline.v.one { left: 31%; animation-delay:.12s; } .zapline.v.two { left: 65%; animation-delay:.32s; }
+    @keyframes dash { to { stroke-dashoffset: -40; } }
 
-    .character {
-      text-align: center;
-      position: relative;
-    }
+    .spark { position: absolute; z-index: 2; width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff, 0 0 22px #00e5ff, 0 0 36px #ffeb3b; pointer-events: none; opacity: 0; animation: spark 2.1s infinite; }
+    .spark.s1 { left: 31%; top: 31%; } .spark.s2 { left: 65%; top: 31%; animation-delay:.5s; } .spark.s3 { left: 31%; top: 65%; animation-delay:1s; } .spark.s4 { left: 65%; top: 65%; animation-delay:1.45s; }
+    @keyframes spark { 0%,80%,100%{opacity:0; transform:scale(.4)} 85%{opacity:1; transform:scale(1.8)} 90%{opacity:.4; transform:scale(.7)} }
 
-    .speech {
-      background: #fff;
-      color: #111;
-      border-radius: 16px;
-      padding: 10px;
-      min-height: 42px;
-      font-weight: 800;
-      box-shadow: 0 5px 0 rgba(0,0,0,0.35);
-    }
-
-    .body {
-      font-size: clamp(70px, 11vw, 124px);
-      user-select: none;
-      transition: filter .2s;
-    }
-
-    .paw {
-      font-size: 34px;
-      animation: point .8s infinite alternate;
-      user-select: none;
-    }
-
-    @keyframes point {
-      from { transform: translateY(0); }
-      to { transform: translateY(-10px); }
-    }
-
-    .character.shocked .body {
-      animation: shock .52s linear;
-      filter: brightness(2.5) drop-shadow(0 0 20px #00e5ff);
-    }
-
-    @keyframes shock {
-      0%,100% { transform: translateX(0) rotate(0deg) scale(1); }
-      20% { transform: translateX(-10px) rotate(-10deg) scale(1.08); }
-      40% { transform: translateX(10px) rotate(10deg) scale(1.04); }
-      60% { transform: translateX(-8px) rotate(-8deg) scale(1.08); }
-      80% { transform: translateX(8px) rotate(8deg) scale(1.04); }
-    }
-
-    .board-shell {
-      position: relative;
-      border: 5px solid #00e5ff;
-      border-radius: 28px;
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(0,229,255,.12), rgba(0,0,0,.75));
-      box-shadow: 0 0 30px #00e5ff, inset 0 0 24px rgba(0,229,255,.25);
-      overflow: hidden;
-    }
-
-    .board-header {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .score-box {
-      border: 2px solid #ffeb3b;
-      border-radius: 14px;
-      padding: 8px;
-      background: rgba(0,0,0,.45);
-      text-align: center;
-      font-weight: 800;
-      box-shadow: 0 0 12px rgba(255,235,59,.45);
-    }
-
-    .score-box span { font-size: 24px; }
-
-    #statusText {
-      color: #ffeb3b;
-      font-weight: 900;
-      text-align: center;
-      text-shadow: 0 0 10px rgba(255,235,59,.6);
-    }
-
-    .electric-label {
-      text-align: center;
-      color: #00e5ff;
-      margin-bottom: 10px;
-      letter-spacing: 4px;
-      font-weight: 900;
-      text-shadow: 0 0 12px #00e5ff;
-    }
-
-    .board {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(88px, 150px));
-      grid-template-rows: repeat(3, minmax(88px, 150px));
-      gap: 10px;
-      margin: 0 auto;
-    }
-
-    .cell {
-      position: relative;
-      z-index: 2;
-      background: rgba(14,14,14,.92);
-      border: 3px solid #00e5ff;
-      border-radius: 18px;
-      color: white;
-      font-size: clamp(42px, 8vw, 74px);
-      cursor: pointer;
-      transition: transform .12s, background .12s, box-shadow .12s;
-      box-shadow: inset 0 0 14px rgba(0,229,255,.25);
-    }
-
-    .cell:hover {
-      background: #252525;
-      transform: scale(1.04);
-      box-shadow: 0 0 20px #00e5ff, inset 0 0 14px rgba(0,229,255,.4);
-    }
-
-    .arc {
-      position: absolute;
-      z-index: 1;
-      pointer-events: none;
-      border-radius: 999px;
-      background: linear-gradient(90deg, transparent, #fff, #00e5ff, transparent);
-      box-shadow: 0 0 18px #00e5ff, 0 0 28px #fff;
-      opacity: .9;
-    }
-
-    .arc.h1, .arc.h2 { height: 5px; left: 0; right: 0; animation: zapX .9s linear infinite; }
-    .arc.h1 { top: 32%; }
-    .arc.h2 { top: 66%; animation-delay: .25s; }
-    .arc.v1, .arc.v2 { width: 5px; top: 0; bottom: 0; animation: zapY 1.05s linear infinite; }
-    .arc.v1 { left: 32%; animation-delay: .1s; }
-    .arc.v2 { left: 66%; animation-delay: .35s; }
-
-    @keyframes zapX {
-      from { transform: translateX(-80%) scaleX(.22); opacity: .15; }
-      45% { opacity: 1; }
-      to { transform: translateX(80%) scaleX(.22); opacity: .15; }
-    }
-
-    @keyframes zapY {
-      from { transform: translateY(-80%) scaleY(.22); opacity: .15; }
-      45% { opacity: 1; }
-      to { transform: translateY(80%) scaleY(.22); opacity: .15; }
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .controls button {
-      background: #00e5ff;
-      border: none;
-      border-radius: 14px;
-      padding: 13px 18px;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 5px 0 #007b8c;
-    }
-
+    .controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .controls button { background: #00e5ff; border: none; border-radius: 14px; padding: 12px 16px; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #007b8c; }
     .controls button:active { transform: translateY(3px); box-shadow: 0 2px 0 #007b8c; }
 
-    .coin-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(3px);
-    }
-
+    .coin-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 20; background: rgba(0,0,0,.45); backdrop-filter: blur(3px); }
     .coin-overlay.show { display: flex; }
+    .coin { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff7b0, #ffcc33 45%, #9a6500 100%); color: #111; display: grid; place-items: center; font-size: 70px; border: 6px solid #fff0a3; box-shadow: 0 0 40px #ffeb3b; animation: coinDrop 1s ease-in forwards; }
+    @keyframes coinDrop { 0%{transform:translateY(-55vh) rotateY(0deg) scale(.65)} 55%{transform:translateY(4vh) rotateY(1080deg) scale(1.12)} 75%{transform:translateY(-5vh) rotateY(1320deg) scale(.98)} 100%{transform:translateY(0) rotateY(1440deg) scale(1)} }
 
-    .coin {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 25%, #fff7b0, #ffcc33 45%, #9a6500 100%);
-      color: #111;
-      display: grid;
-      place-items: center;
-      font-size: 70px;
-      border: 6px solid #fff0a3;
-      box-shadow: 0 0 40px #ffeb3b;
-      animation: coinDrop 1s ease-in forwards;
-    }
+    .action-lick { animation: lick .8s ease-in-out; } .action-scratch { animation: scratch .8s ease-in-out; } .action-bark { animation: bark .55s ease-in-out; } .action-angry { animation: angry .65s ease-in-out; } .action-point { animation: pointHead .6s ease-in-out; } .action-shock { animation: shock .52s linear; filter: brightness(2.5) drop-shadow(0 0 20px #00e5ff); }
+    @keyframes lick { 0%,100%{transform:rotate(0) scale(1)} 30%{transform:rotate(-12deg) scale(1.06)} 60%{transform:rotate(-6deg) translateY(5px)} }
+    @keyframes scratch { 0%,100%{transform:rotate(0)} 20%{transform:rotate(8deg) translateX(4px)} 40%{transform:rotate(-8deg) translateX(-4px)} 60%{transform:rotate(8deg) translateX(4px)} }
+    @keyframes bark { 0%,100%{transform:scale(1)} 30%{transform:scale(1.18) translateY(-3px)} 55%{transform:scale(.95)} }
+    @keyframes angry { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+    @keyframes pointHead { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-10px) rotate(10deg) scale(1.08)} }
+    @keyframes shock { 0%,100%{transform:translateX(0) rotate(0) scale(1)} 20%{transform:translateX(-10px) rotate(-10deg) scale(1.08)} 40%{transform:translateX(10px) rotate(10deg) scale(1.04)} 60%{transform:translateX(-8px) rotate(-8deg) scale(1.08)} 80%{transform:translateX(8px) rotate(8deg) scale(1.04)} }
 
-    @keyframes coinDrop {
-      0% { transform: translateY(-55vh) rotateY(0deg) scale(.65); }
-      55% { transform: translateY(4vh) rotateY(1080deg) scale(1.12); }
-      75% { transform: translateY(-5vh) rotateY(1320deg) scale(.98); }
-      100% { transform: translateY(0) rotateY(1440deg) scale(1); }
-    }
-
-    @media (max-width: 860px) {
+    @media (max-width: 700px) {
       .app { justify-content: flex-start; }
-      .arena { grid-template-columns: 1fr; gap: 10px; }
-      .character { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
-      .speech { min-height: 34px; font-size: 14px; }
-      .paw { display: none; }
-      .board { grid-template-columns: repeat(3, 30vw); grid-template-rows: repeat(3, 30vw); gap: 8px; }
-      .board-shell { padding: 12px; }
+      .top-heads { position: sticky; top: 0; z-index: 8; padding-top: 4px; }
+      .head-card { width: 48%; padding: 6px; }
       .board-header { grid-template-columns: 1fr; }
-      .score-box span { font-size: 20px; }
+      .board { --size: min(92vw, 52vh, 430px); }
+      .controls button { flex: 1 1 130px; }
     }
   </style>
 </head>
 <body>
   <div class="coin-overlay" id="coinOverlay"><div class="coin" id="coin">🐱</div></div>
-
   <main class="app">
     <h1 class="title">Cat vs Dog</h1>
-
+    <section class="top-heads">
+      <div class="head-card cat"><div class="head" id="catHead">🐱</div><div class="bubble" id="catSpeech">Мяу?</div></div>
+      <div class="head-card dog"><div class="head" id="dogHead">🐶</div><div class="bubble" id="dogSpeech">Гав!</div></div>
+    </section>
     <section class="arena">
-      <div class="character" id="catCharacter">
-        <div class="speech" id="catSpeech">Мяу?</div>
-        <div class="body">🐱</div>
-        <div class="paw">☝️</div>
-      </div>
-
       <div class="board-shell">
         <div class="board-header">
           <div class="score-box">🐱 Cat<br><span id="catScore">0</span></div>
@@ -278,7 +87,11 @@
         </div>
         <div class="electric-label">HIGH VOLTAGE</div>
         <div class="board" id="board">
-          <div class="arc h1"></div><div class="arc h2"></div><div class="arc v1"></div><div class="arc v2"></div>
+          <div class="zapline h one"><svg viewBox="0 0 100 20" preserveAspectRatio="none"><polyline points="0,10 8,2 16,15 25,5 33,14 45,3 58,16 70,6 82,13 100,7"/></svg></div>
+          <div class="zapline h two"><svg viewBox="0 0 100 20" preserveAspectRatio="none"><polyline points="0,8 10,16 20,4 31,14 43,5 54,15 68,3 80,14 91,6 100,11"/></svg></div>
+          <div class="zapline v one"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><polyline points="10,0 3,8 15,18 5,29 14,40 4,52 16,66 6,78 13,88 8,100"/></svg></div>
+          <div class="zapline v two"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><polyline points="8,0 16,11 4,21 15,34 5,45 14,57 3,70 15,82 6,92 12,100"/></svg></div>
+          <div class="spark s1"></div><div class="spark s2"></div><div class="spark s3"></div><div class="spark s4"></div>
           <button class="cell" data-index="0"></button><button class="cell" data-index="1"></button><button class="cell" data-index="2"></button>
           <button class="cell" data-index="3"></button><button class="cell" data-index="4"></button><button class="cell" data-index="5"></button>
           <button class="cell" data-index="6"></button><button class="cell" data-index="7"></button><button class="cell" data-index="8"></button>
@@ -289,15 +102,8 @@
           <button id="resetScoreBtn">Сброс счёта</button>
         </div>
       </div>
-
-      <div class="character" id="dogCharacter">
-        <div class="speech" id="dogSpeech">Гав!</div>
-        <div class="body">🐶</div>
-        <div class="paw">☝️</div>
-      </div>
     </section>
   </main>
-
   <script>
     const cells = document.querySelectorAll('.cell');
     const statusText = document.getElementById('statusText');
@@ -306,104 +112,35 @@
     const resetScoreBtn = document.getElementById('resetScoreBtn');
     const catScoreEl = document.getElementById('catScore');
     const dogScoreEl = document.getElementById('dogScore');
-    const catCharacter = document.getElementById('catCharacter');
-    const dogCharacter = document.getElementById('dogCharacter');
+    const catHead = document.getElementById('catHead');
+    const dogHead = document.getElementById('dogHead');
     const catSpeech = document.getElementById('catSpeech');
     const dogSpeech = document.getElementById('dogSpeech');
     const coinOverlay = document.getElementById('coinOverlay');
     const coin = document.getElementById('coin');
-
     let boardState = Array(9).fill('');
     let currentPlayer = '🐱';
     let gameOver = false;
     let vsAI = true;
     let scores = { cat: 0, dog: 0 };
-
     const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-
-    function randomShock(character) {
-      if (Math.random() >= 0.28) return;
-      character.classList.add('shocked');
-      if (character === catCharacter) catSpeech.textContent = 'МЯЯЯУ⚡';
-      else dogSpeech.textContent = 'ГАААВ⚡';
-      setTimeout(() => character.classList.remove('shocked'), 520);
-    }
-
+    const catActions = [ ['action-lick','Лапа чистая!'], ['action-angry','Ты куда лезешь?'], ['action-point','Вот сюда!'], ['action-bark','Мрр!'] ];
+    const dogActions = [ ['action-scratch','Чешется...'], ['action-bark','Гав-гав!'], ['action-angry','Эй, кот!'], ['action-point','Не туда!'] ];
+    function animate(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(()=>el.classList.remove(cls), 850); }
+    function randomIdle() { if (gameOver) return; const isCat = Math.random() < .5; const arr = isCat ? catActions : dogActions; const [cls,text] = arr[Math.floor(Math.random()*arr.length)]; animate(isCat ? catHead : dogHead, cls); (isCat ? catSpeech : dogSpeech).textContent = text; }
+    setInterval(randomIdle, 2600);
+    function randomShock(head) { if (Math.random() >= 0.3) return; animate(head, 'action-shock'); if (head === catHead) catSpeech.textContent = 'МЯЯЯУ⚡'; else dogSpeech.textContent = 'ГАААВ⚡'; }
     function updateStatus() { statusText.textContent = `Ход: ${currentPlayer}`; }
-
-    function startGame() {
-      boardState = Array(9).fill('');
-      gameOver = true;
-      cells.forEach(cell => cell.textContent = '');
-      currentPlayer = Math.random() < 0.5 ? '🐱' : '🐶';
-      coin.textContent = currentPlayer;
-      coinOverlay.classList.add('show');
-      statusText.textContent = 'Бросаем монетку...';
-      catSpeech.textContent = 'Кто первый?';
-      dogSpeech.textContent = 'Сейчас узнаем!';
-
-      setTimeout(() => {
-        coinOverlay.classList.remove('show');
-        gameOver = false;
-        statusText.textContent = `${currentPlayer} ходит первым!`;
-        catSpeech.textContent = currentPlayer === '🐱' ? 'Мой ход!' : 'Жду...';
-        dogSpeech.textContent = currentPlayer === '🐶' ? 'Мой ход!' : 'Давай уже!';
-        if (vsAI && currentPlayer === '🐶') setTimeout(aiMove, 650);
-      }, 1200);
-    }
-
-    function checkWinner(player) { return winPatterns.some(p => p.every(i => boardState[i] === player)); }
-    function checkDraw() { return boardState.every(cell => cell !== ''); }
-
-    function endGame(winner) {
-      gameOver = true;
-      if (winner === '🐱') {
-        scores.cat++; catScoreEl.textContent = scores.cat;
-        statusText.textContent = '🐱 Cat победил!'; catSpeech.textContent = 'Ха-ха!'; dogSpeech.textContent = 'Нечестно...'; randomShock(dogCharacter);
-      } else {
-        scores.dog++; dogScoreEl.textContent = scores.dog;
-        statusText.textContent = '🐶 Dog победил!'; dogSpeech.textContent = 'Гав-гав!'; catSpeech.textContent = 'Мяя...'; randomShock(catCharacter);
-      }
-    }
-
-    function makeMove(index) {
-      if (boardState[index] || gameOver) return;
-      boardState[index] = currentPlayer;
-      cells[index].textContent = currentPlayer;
-
-      if (currentPlayer === '🐱') { catSpeech.textContent = 'Сюда!'; dogSpeech.textContent = 'Не туда!'; randomShock(catCharacter); }
-      else { dogSpeech.textContent = 'Твой ход!'; catSpeech.textContent = 'Смотри лучше!'; randomShock(dogCharacter); }
-
-      if (checkWinner(currentPlayer)) return endGame(currentPlayer);
-      if (checkDraw()) { gameOver = true; statusText.textContent = 'Ничья!'; catSpeech.textContent = 'Мур.'; dogSpeech.textContent = 'Ладно.'; return; }
-
-      currentPlayer = currentPlayer === '🐱' ? '🐶' : '🐱';
-      updateStatus();
-      if (vsAI && currentPlayer === '🐶') setTimeout(aiMove, 500);
-    }
-
-    function aiMove() {
-      const free = boardState.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-      if (!free.length) return;
-      makeMove(free[Math.floor(Math.random() * free.length)]);
-    }
-
-    cells.forEach(cell => cell.addEventListener('click', () => {
-      if (vsAI && currentPlayer === '🐶') return;
-      makeMove(Number(cell.dataset.index));
-    }));
-
+    function startGame() { boardState = Array(9).fill(''); gameOver = true; cells.forEach(c=>c.textContent=''); currentPlayer = Math.random() < .5 ? '🐱' : '🐶'; coin.textContent = currentPlayer; coinOverlay.classList.add('show'); statusText.textContent = 'Бросаем монетку...'; catSpeech.textContent = 'Кто первый?'; dogSpeech.textContent = 'Сейчас узнаем!'; animate(catHead,'action-point'); animate(dogHead,'action-bark'); setTimeout(()=>{ coinOverlay.classList.remove('show'); gameOver = false; statusText.textContent = `${currentPlayer} ходит первым!`; catSpeech.textContent = currentPlayer === '🐱' ? 'Мой ход!' : 'Жду...'; dogSpeech.textContent = currentPlayer === '🐶' ? 'Мой ход!' : 'Давай уже!'; if (vsAI && currentPlayer === '🐶') setTimeout(aiMove, 650); }, 1200); }
+    function checkWinner(player) { return winPatterns.some(p=>p.every(i=>boardState[i]===player)); }
+    function checkDraw() { return boardState.every(c=>c !== ''); }
+    function endGame(winner) { gameOver = true; if (winner === '🐱') { scores.cat++; catScoreEl.textContent = scores.cat; statusText.textContent = '🐱 Cat победил!'; catSpeech.textContent = 'Ха-ха!'; dogSpeech.textContent = 'Нечестно...'; animate(catHead,'action-point'); randomShock(dogHead); } else { scores.dog++; dogScoreEl.textContent = scores.dog; statusText.textContent = '🐶 Dog победил!'; dogSpeech.textContent = 'Гав-гав!'; catSpeech.textContent = 'Мяя...'; animate(dogHead,'action-bark'); randomShock(catHead); } }
+    function makeMove(index) { if (boardState[index] || gameOver) return; boardState[index] = currentPlayer; cells[index].textContent = currentPlayer; if (currentPlayer === '🐱') { catSpeech.textContent = 'Сюда!'; dogSpeech.textContent = 'Не туда!'; animate(catHead,'action-lick'); randomShock(catHead); } else { dogSpeech.textContent = 'Твой ход!'; catSpeech.textContent = 'Смотри лучше!'; animate(dogHead,'action-bark'); randomShock(dogHead); } if (checkWinner(currentPlayer)) return endGame(currentPlayer); if (checkDraw()) { gameOver = true; statusText.textContent = 'Ничья!'; catSpeech.textContent = 'Мур.'; dogSpeech.textContent = 'Ладно.'; return; } currentPlayer = currentPlayer === '🐱' ? '🐶' : '🐱'; updateStatus(); if (vsAI && currentPlayer === '🐶') setTimeout(aiMove, 500); }
+    function aiMove() { const free = boardState.map((v,i)=>v===''?i:null).filter(v=>v!==null); if (!free.length) return; makeMove(free[Math.floor(Math.random()*free.length)]); }
+    cells.forEach(cell => cell.addEventListener('click', () => { if (vsAI && currentPlayer === '🐶') return; makeMove(Number(cell.dataset.index)); }));
     newGameBtn.addEventListener('click', startGame);
-    modeBtn.addEventListener('click', () => {
-      vsAI = !vsAI;
-      modeBtn.textContent = vsAI ? 'Режим: против AI' : 'Режим: 1 vs 1';
-      startGame();
-    });
-    resetScoreBtn.addEventListener('click', () => {
-      scores.cat = 0; scores.dog = 0;
-      catScoreEl.textContent = '0'; dogScoreEl.textContent = '0';
-    });
-
+    modeBtn.addEventListener('click', () => { vsAI = !vsAI; modeBtn.textContent = vsAI ? 'Режим: против AI' : 'Режим: 1 vs 1'; startGame(); });
+    resetScoreBtn.addEventListener('click', () => { scores.cat = 0; scores.dog = 0; catScoreEl.textContent = '0'; dogScoreEl.textContent = '0'; });
     startGame();
   </script>
 </body>
