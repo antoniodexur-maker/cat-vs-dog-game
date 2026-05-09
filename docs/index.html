@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cat vs Dog Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #263238, #080808);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .top-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid #00e5ff;
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-width: 110px;
+      box-shadow: 0 0 14px rgba(0,229,255,0.35);
+    }
+
+    .avatar { font-size: 38px; }
+    .name { font-weight: bold; font-size: 18px; }
+    .score { font-size: 14px; color: #d7faff; }
+
+    .center-panel { text-align: center; }
+    .center-panel h1 { margin: 0 0 8px; font-size: 30px; }
+    #statusText { margin: 0; color: #ffeb3b; font-weight: bold; }
+
+    .game-area {
+      margin-top: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .character {
+      width: 170px;
+      text-align: center;
+      position: relative;
+    }
+
+    .body {
+      font-size: 100px;
+      transition: transform 0.18s, filter 0.18s;
+      user-select: none;
+    }
+
+    .character.shocked .body {
+      animation: shock 0.5s linear;
+      filter: brightness(2.4) drop-shadow(0 0 14px #00e5ff);
+    }
+
+    @keyframes shock {
+      0% { transform: translateX(0) rotate(0deg) scale(1); }
+      20% { transform: translateX(-8px) rotate(-8deg) scale(1.08); }
+      40% { transform: translateX(8px) rotate(8deg) scale(1.05); }
+      60% { transform: translateX(-6px) rotate(-6deg) scale(1.08); }
+      80% { transform: translateX(6px) rotate(6deg) scale(1.04); }
+      100% { transform: translateX(0) rotate(0deg) scale(1); }
+    }
+
+    .speech {
+      margin-bottom: 10px;
+      background: white;
+      color: #111;
+      border-radius: 14px;
+      padding: 9px;
+      min-height: 22px;
+      font-weight: bold;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+    }
+
+    .paw {
+      font-size: 34px;
+      animation: point 0.7s infinite alternate;
+      user-select: none;
+    }
+
+    @keyframes point {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-8px); }
+    }
+
+    .board-wrap { position: relative; }
+    .electric-label {
+      text-align: center;
+      color: #00e5ff;
+      margin-bottom: 10px;
+      letter-spacing: 3px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00e5ff;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 118px);
+      grid-template-rows: repeat(3, 118px);
+      gap: 8px;
+      padding: 10px;
+      border: 4px solid #00e5ff;
+      border-radius: 18px;
+      box-shadow: 0 0 22px #00e5ff, inset 0 0 22px rgba(0,229,255,0.25);
+      background: rgba(0,0,0,0.35);
+      position: relative;
+    }
+
+    .board::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 22px;
+      border: 2px dashed rgba(255, 235, 59, 0.4);
+      pointer-events: none;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.35; }
+      to { opacity: 1; }
+    }
+
+    .cell {
+      background: #171717;
+      border: 2px solid #00e5ff;
+      border-radius: 12px;
+      color: white;
+      font-size: 52px;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .cell:hover {
+      background: #242424;
+      transform: scale(1.04);
+      box-shadow: 0 0 12px #00e5ff;
+    }
+
+    .controls {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls button {
+      background: #00e5ff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #008ea0;
+    }
+
+    .controls button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #008ea0;
+    }
+
+    @media (max-width: 850px) {
+      .top-panel { flex-direction: column; }
+      .game-area { flex-direction: column; gap: 16px; }
+      .character { width: 100%; }
+      .body { font-size: 72px; }
+      .board {
+        grid-template-columns: repeat(3, 86px);
+        grid-template-rows: repeat(3, 86px);
+      }
+      .cell { font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top-panel">
+      <section class="player-card">
+        <div class="avatar">🐱</div>
+        <div><div class="name">Cat</div><div class="score">Очки: <span id="catScore">0</span></div></div>
+      </section>
+
+      <section class="center-panel">
+        <h1>Cat vs Dog</h1>
+        <p id="statusText">Нажми «Новая партия»</p>
+      </section>
+
+      <section class="player-card">
+        <div class="avatar">🐶</div>
+        <div><div class="name">Dog</div><div class="score">Очки: <span id="dogScore">0</span></div></div>
+      </section>
+    </header>
+
+    <section class="game-area">
+      <div class="character" id="catCharacter">
+        <div class="speech" id="catSpeech">Мяу?</div>
+        <div class="body">🐱</div>
+        <div class="paw">☝️</div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="electric-label">HIGH VOLTAGE</div>
+        <div class="board" id="board">
+          <button class="cell" data-index="0"></button>
+          <button class="cell" data-index="1"></button>
+          <button class="cell" data-index="2"></button>
+          <button class="cell" data-index="3"></button>
+          <button class="cell" data-index="4"></button>
+          <button class="cell" data-index="5"></button>
+          <button class="cell" data-index="6"></button>
+          <button class="cell" data-index="7"></button>
+          <button class="cell" data-index="8"></button>
+        </div>
+      </div>
+
+      <div class="character" id="dogCharacter">
+        <div class="speech" id="dogSpeech">Гав!</div>
+        <div class="body">🐶</div>
+        <div class="paw">☝️</div>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <button id="newGameBtn">🎲 Новая партия</button>
+      <button id="modeBtn">Режим: против AI</button>
+      <button id="resetScoreBtn">Сброс счёта</button>
+    </footer>
+  </main>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const statusText = document.getElementById('statusText');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const modeBtn = document.getElementById('modeBtn');
+    const resetScoreBtn = document.getElementById('resetScoreBtn');
+
+    const catScoreEl = document.getElementById('catScore');
+    const dogScoreEl = document.getElementById('dogScore');
+
+    const catCharacter = document.getElementById('catCharacter');
+    const dogCharacter = document.getElementById('dogCharacter');
+
+    const catSpeech = document.getElementById('catSpeech');
+    const dogSpeech = document.getElementById('dogSpeech');
+
+    let boardState = Array(9).fill('');
+    let currentPlayer = '🐱';
+    let gameOver = false;
+    let vsAI = true;
+
+    let scores = { cat: 0, dog: 0 };
+
+    const winPatterns = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    function randomShock(character) {
+      const shock = Math.random() < 0.28;
+      if (!shock) return;
+
+      character.classList.add('shocked');
+
+      if (character === catCharacter) catSpeech.textContent = 'МЯЯЯУ⚡';
+      else dogSpeech.textContent = 'ГАААВ⚡';
+
+      setTimeout(() => character.classList.remove('shocked'), 520);
+    }
+
+    function updateStatus() {
+      statusText.textContent = `Ход: ${currentPlayer}`;
+    }
+
+    function startGame() {
+      boardState = Array(9).fill('');
+      gameOver = false;
+      cells.forEach(cell => cell.textContent = '');
+
+      currentPlayer = Math.random() < 0.5 ? '🐱' : '🐶';
+      statusText.textContent = `${currentPlayer} ходит первым!`;
+      catSpeech.textContent = 'Я победю!';
+      dogSpeech.textContent = 'Посмотрим!';
+
+      if (vsAI && currentPlayer === '🐶') setTimeout(aiMove, 700);
+    }
+
+    function checkWinner(player) {
+      return winPatterns.some(pattern => pattern.every(index => boardState[index] === player));
+    }
+
+    function checkDraw() {
+      return boardState.every(cell => cell !== '');
+    }
+
+    function endGame(winner) {
+      gameOver = true;
+
+      if (winner === '🐱') {
+        scores.cat++;
+        catScoreEl.textContent = scores.cat;
+        statusText.textContent = '🐱 Cat победил!';
+        catSpeech.textContent = 'Ха-ха!';
+        dogSpeech.textContent = 'Нечестно...';
+        randomShock(dogCharacter);
+      } else {
+        scores.dog++;
+        dogScoreEl.textContent = scores.dog;
+        statusText.textContent = '🐶 Dog победил!';
+        dogSpeech.textContent = 'Гав-гав!';
+        catSpeech.textContent = 'Мяя...';
+        randomShock(catCharacter);
+      }
+    }
+
+    function makeMove(index) {
+      if (boardState[index] || gameOver) return;
+
+      boardState[index] = currentPlayer;
+      cells[index].textContent = currentPlayer;
+
+      if (currentPlayer === '🐱') {
+        catSpeech.textContent = 'Сюда!';
+        dogSpeech.textContent = 'Не туда!';
+        randomShock(catCharacter);
+      } else {
+        dogSpeech.textContent = 'Твой ход!';
+        catSpeech.textContent = 'Смотри лучше!';
+        randomShock(dogCharacter);
+      }
+
+      if (checkWinner(currentPlayer)) {
+        endGame(currentPlayer);
+        return;
+      }
+
+      if (checkDraw()) {
+        gameOver = true;
+        statusText.textContent = 'Ничья!';
+        catSpeech.textContent = 'Мур.';
+        dogSpeech.textContent = 'Ладно.';
+        return;
+      }
+
+      currentPlayer = currentPlayer === '🐱' ? '🐶' : '🐱';
+      updateStatus();
+
+      if (vsAI && currentPlayer === '🐶' && !gameOver) setTimeout(aiMove, 500);
+    }
+
+    function aiMove() {
+      const free = boardState
+        .map((v, i) => v === '' ? i : null)
+        .filter(v => v !== null);
+
+      if (!free.length) return;
+
+      const move = free[Math.floor(Math.random() * free.length)];
+      makeMove(move);
+    }
+
+    cells.forEach(cell => {
+      cell.addEventListener('click', () => {
+        const index = Number(cell.dataset.index);
+        if (vsAI && currentPlayer === '🐶') return;
+        makeMove(index);
+      });
+    });
+
+    newGameBtn.addEventListener('click', startGame);
+
+    modeBtn.addEventListener('click', () => {
+      vsAI = !vsAI;
+      modeBtn.textContent = vsAI ? 'Режим: против AI' : 'Режим: 1 vs 1';
+      startGame();
+    });
+
+    resetScoreBtn.addEventListener('click', () => {
+      scores.cat = 0;
+      scores.dog = 0;
+      catScoreEl.textContent = '0';
+      dogScoreEl.textContent = '0';
+    });
+
+    startGame();
+  </script>
+</body>
+</html>
