@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Cat vs Dog</title>
-<link rel="stylesheet" href="style.css?v=classic5">
+<link rel="stylesheet" href="style.css?v=classic6">
 </head>
 <body>
 
@@ -16,29 +16,16 @@
   <h1 class="title">Cat vs Dog</h1>
 
   <div class="shell">
-
     <div class="top">
-      <div class="score-box" id="catBox">
-        <span class="score-face">🐱</span>
-        Cat
-        <span class="score-num" id="catScore">0</span>
-      </div>
-
+      <div class="score-box" id="catBox"><span class="score-face">🐱</span>Cat<span class="score-num" id="catScore">0</span></div>
       <div id="status">Новая партия</div>
-
-      <div class="score-box" id="dogBox">
-        <span class="score-face">🐶</span>
-        Dog
-        <span class="score-num" id="dogScore">0</span>
-      </div>
+      <div class="score-box" id="dogBox"><span class="score-face">🐶</span>Dog<span class="score-num" id="dogScore">0</span></div>
     </div>
 
     <div class="label">HIGH VOLTAGE</div>
 
     <div class="board" id="board">
-      <svg class="victory-svg hidden" id="victorySvg" viewBox="0 0 100 100">
-        <polyline id="victoryLine"></polyline>
-      </svg>
+      <svg class="victory-svg hidden" id="victorySvg" viewBox="0 0 100 100"><polyline id="victoryLine"></polyline></svg>
       <button class="cell" data-index="0"></button><button class="cell" data-index="1"></button><button class="cell" data-index="2"></button>
       <button class="cell" data-index="3"></button><button class="cell" data-index="4"></button><button class="cell" data-index="5"></button>
       <button class="cell" data-index="6"></button><button class="cell" data-index="7"></button><button class="cell" data-index="8"></button>
@@ -51,11 +38,9 @@
       <button id="resetBtn">Сброс счёта</button>
       <button id="langBtn">🌐 RU</button>
     </div>
-
   </div>
 </main>
 
-<script src="game.js?v=classic5"></script>
-
+<script src="game.js?v=classic6"></script>
 </body>
 </html>
